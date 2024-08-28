@@ -1,0 +1,156 @@
+@page "/turnos/nuevo"
+@using Reciplas.Repository
+@inject NotificationService NotificationService 
+@inherits OwningComponentBase<Turno> 
+@inject NavigationManager NavigationManager
+@inject IClienteRepository _clientRepository
+
+<TituloPrincipal TextoPrincipal="Nuevo turno"/> 
+@if (turno == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <RadzenTemplateForm Data="@turno" Submit="@((Models.Turno args) => { Submit(args); })">
+    <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-4">
+            <RadzenColumn Size="12" SizeMD="6">     
+                <RadzenStack>
+                    <RadzenFieldset Text="Información del turno">
+                        <RadzenStack Gap="1rem">
+                            <RadzenRow AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="Fecha del turno" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenDatePicker Style="width: 100%;"
+                                                      @bind-Value=@turno.FechaTurno 
+                                                      ShowTime="true"
+                                                      DateFormat="dd/MM/yyyy" Change="@(args => VerificarTurno(turno.FechaTurno))" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="Hora del turno" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenDatePicker Style="width: 100%;"
+                                                      @bind-Value=@turno.FechaTurno
+                                                      DateFormat="HH:mm"
+                                                      ShowTime="true" TimeOnly="true"
+                                                      />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="Estado" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenTextBox Style="width: 100%;"
+                                                   Value="@(turno.Estado ? "Ocupado" : "Ocupado")"
+                                                   Disabled="true"  />
+                                </RadzenColumn> 
+                            </RadzenRow>
+                        </RadzenStack>
+                    </RadzenFieldset>
+
+                               <RadzenFieldset Text="Información del cliente">
+                        <RadzenStack Gap="1rem">
+                            <RadzenRow AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="Nombre y Apellido" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenTextBox Style="width: 100%;" @bind-Value=@turno.cliente.NombreyApellido />
+                                </RadzenColumn> 
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="DNI" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenTextBox Style="width: 100%;" @bind-Value=@turno.cliente.DNI Placeholder="Sin caracteres especiales"/>
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="Telefono" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenTextBox Style="width: 100%;" @bind-Value=@turno.cliente.Telefono Placeholder="Sin caracteres especiales" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="Fecha de Nacimiento" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenDatePicker Style="width: 100%;"
+                                                      @bind-Value=@turno.cliente.FechadeNacimiento ShowTime="true" DateFormat="dd/MM/yyyy" />
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenStack>
+                    </RadzenFieldset>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow> 
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">            
+            <RadzenButton ButtonType="ButtonType.Submit" Style="margin-left:15px"  Variant="Variant.Flat" Text="Guardar" Icon="check_circle" ButtonStyle="ButtonStyle.Primary"  />
+            <RadzenButton ButtonType="ButtonType.Button" Style="margin-right:15px" Click=@(args => OnClick("Registro sin guardar")) Variant="Variant.Flat" Text="Volver" Icon="history" ButtonStyle="ButtonStyle.Light" />
+                        
+</RadzenStack>  
+    </RadzenTemplateForm>
+}
+
+@code {
+    DateTime value = DateTime.Now;
+    Turno turno = new Models.Turno(); 
+    string estadoNombre = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    { 
+        turno.Estado = true; 
+    }
+
+    private void OnClick(string text)
+    {
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Detail = text });
+        NavigationManager.NavigateTo("/turnos/listado");
+
+    }
+
+    async void Submit(Turno arg)
+    { 
+        var existingCliente = await _clientRepository.GetClientePorDNIYFechaTurno(arg.cliente.DNI, arg.FechaTurno);
+
+        if (existingCliente != null)
+        { 
+            NotificationService.Notify(new NotificationMessage
+        {
+            Severity = NotificationSeverity.Error,
+            Detail = "Ya existe un turno asociado al cliente. No se puede agregar."
+        });
+        }
+        else
+        { 
+            turno.FechaUltimaModificacion = DateTime.Now;
+            turno.NumeroTurno++;
+
+            var client = await _clientRepository.AddTurno(arg);
+
+            NotificationService.Notify(new NotificationMessage
+        {
+            Severity = NotificationSeverity.Success,
+            Detail = "Turno agregado exitosamente."
+        });
+            NavigationManager.NavigateTo("/turnos/listado");
+        }
+    }
+
+    async void VerificarTurno(DateTime fechaTurno)
+    {
+        var existingTurno = await _clientRepository.GetFechaTurno(fechaTurno);
+
+        if (existingTurno != null)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Detail = "Ya existe un turno en la fecha indicada. No se puede agregar."
+            });
+            turno.Estado = false;
+        }
+    }
+
+}

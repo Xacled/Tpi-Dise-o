@@ -1,0 +1,101 @@
+@page "/turnos/listado"
+@using Reciplas.Models;
+@inject NotificationService NotificationService 
+@inherits OwningComponentBase<Turno>
+@using System.Collections.Generic;  
+@using Reciplas.Repository
+@inject DialogService DialogService   
+@inject NavigationManager NavigationManager
+@inject IClienteRepository _clientRepository 
+@using Radzen
+@inject TooltipService tooltipService
+
+
+<PageTitle>Turno</PageTitle>
+
+<TituloPrincipal TextoPrincipal="Turnos"/>   <br>
+ 
+<RadzenButton Click=@(args => OnClick("Oblea Descargada")) Variant="Variant.Flat" Shade="Shade.Dark"  Text="Excel" Icon="assignment_returned" ButtonStyle="ButtonStyle.Success"/>
+
+<br>
+<br>
+<CListado TItem="Turno" Data="@turnos" PageSize="5" Frozen="true">
+       <Columns> 
+        <RadzenDataGridColumn TItem="Turno" Property="NumeroTurno" Title="Número" Width="80px" /> 
+        <RadzenDataGridColumn TItem="Turno" Title="Estado" Width="100px">
+            <Template Context="data">
+                @(data.Estado ? "Ocupado" : "Libre")
+            </Template>
+        </RadzenDataGridColumn>      
+        <RadzenDataGridColumn TItem="Turno" Property="FechaTurno" FormatString="{0:d}" Title="Fecha" Width="90px" />
+        <RadzenDataGridColumn TItem="Turno" Property="FechaTurno" FormatString="{0:t}" Title="Hora" Width="90px" />
+        <RadzenDataGridColumn TItem="Turno" Title="Acciones" Width="80px" Context="clientes" Filterable="false" Sortable="false"> 
+        <Template Context="item"> 
+            <RadzenButton Click="@(args => NavigationManager.NavigateTo($"/turnos/detalles/{item.Id}"))" TextAlign="TextAlign.Center" Icon="list" ButtonStyle="ButtonStyle.Success" Style="margin-left: 5px" />
+                <RadzenButton Style="margin-left: 15px" Variant="Variant.Outlined" Click="@(args => NavigationManager.NavigateTo($"/turnos/editar/{item.Id}"))" Icon="edit" />
+                <RadzenButton Click="@(args => RegisterEliminado(item.Id))" TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 15px" />
+
+                </Template>
+        </RadzenDataGridColumn> 
+        
+    </Columns>  
+</CListado> 
+<br> 
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+    <RadzenButton Click="@(args => NavigationManager.NavigateTo("/turnos/nuevo"))" Variant="Variant.Flat" Text="Nuevo" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Secondary" />
+</RadzenStack>
+<br> 
+
+@code {
+    IEnumerable<Turno> turnos;   
+    Turno turno = new();
+    protected bool cargando = true;
+    string _estado; 
+
+    private void OnClick(string text)
+    {
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Detail = text });
+    }
+    protected async Task QuitarAdjunto(int Id)
+    {
+    //
+    }
+    private int _count;
+    protected override async Task OnInitializedAsync()
+    {
+        var persons = await _clientRepository.GetTurnos();
+
+        turnos = persons;
+        _count = persons.Count(); 
+
+    }
+
+    async Task RegisterEliminado(int turnoId)
+    {
+        var result = await DialogService.OpenAsync("Está seguro de que desea eliminar el Turno?", ds =>
+    @<div>
+        <div class="row">
+            <div class="col">
+                <RadzenButton Click=@(args => RegistroEliminado(turnoId)) TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" Text="Eliminar" class="me-1" />
+                <RadzenButton Click="() => ds.Close(false)" TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Light" Style="margin-left: 5px" Text="Cancelar" class="me-1 float-end" />
+            </div> 
+        </div>
+    </div>
+    );
+    }
+
+    async Task RegistroEliminado(int turnoId)
+    {
+        await _clientRepository.EliminarTurno(turnoId);
+        NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Error,
+                Detail = "Registro eliminado."
+            });
+
+        var persons = await _clientRepository.GetTurnos(); 
+        turnos = persons;
+        StateHasChanged();
+    }
+}
+

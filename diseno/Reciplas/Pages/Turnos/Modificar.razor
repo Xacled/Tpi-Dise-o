@@ -1,0 +1,99 @@
+@page "/turnos/editar/{turnoId:int}"
+@using Reciplas.Repository
+@using Reciplas.Shared
+@inject NotificationService NotificationService 
+@inherits OwningComponentBase<Turno> 
+@inject NavigationManager NavigationManager
+@inject IClienteRepository _clientRepository
+
+<TituloPrincipal TextoPrincipal="Modificar"/>  
+
+@if (turno == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <RadzenTemplateForm Data="@turno" Submit="@((Models.Turno args) => { Submit(args); })">
+    <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-4">
+            <RadzenColumn Size="12" SizeMD="6">     
+                <RadzenStack>
+                    <RadzenFieldset Text="Modificación">
+                        <RadzenStack Gap="1rem">
+                            <RadzenRow AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="Fecha del turno" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="8">
+                                    <RadzenDatePicker Style="width: 100%;" Name="ExpiryDate"
+                                                      @bind-Value=@turno.FechaTurno ShowTime="true" DateFormat="dd/MM/yyyy" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="Hora del turno" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="8">
+                                    <RadzenDatePicker Style="width: 100%;"
+                                                      @bind-Value=@turno.FechaTurno
+                                                      DateFormat="HH:mm"
+                                                      ShowTime="true" TimeOnly="true" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenLabel Text="Estado" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="8">
+                                    <RadzenLabel Text="Cambiar estado a: Ocupado" /> 
+                                    <br />
+                                    <RadzenTextBox Style="width: 100%;"
+                                                   Value="@(turno.Estado ? "Libre" : "Ocupado")" />
+                                </RadzenColumn>  
+                            </RadzenRow>
+                        </RadzenStack>
+                    </RadzenFieldset>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <br>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+                <RadzenButton ButtonType="ButtonType.Submit" Style="margin-left:15px;" Click=@(args => OnClick("Registro Modificado")) Variant="Variant.Flat" Text="Modificar" Icon="check_circle" ButtonStyle="ButtonStyle.Success" />
+            <RadzenButton ButtonType="ButtonType.Button" Click="@(args => NavigationManager.NavigateTo("/turnos/listado"))" Text="Volver" Icon="refresh" ButtonStyle="ButtonStyle.Light" />
+            </RadzenStack> 
+    </RadzenTemplateForm>
+}
+
+@code {
+    bool EmployeeIDVisible = false;   
+
+    DateTime value = DateTime.Now;
+
+    [Parameter]
+    public int turnoId { get; set; }
+
+    Models.Turno turno;
+    string estadoNombre;
+
+    protected override async Task OnInitializedAsync()
+    {
+        turno = await _clientRepository.GetTurno(turnoId);
+  
+    } 
+
+    async void Submit(Models.Turno arg)
+    {
+        turno.FechaUltimaModificacion = DateTime.Now;
+
+        var cliente = await _clientRepository.UpdateTurno(arg);
+
+        NavigationManager.NavigateTo("/turnos/listado");
+    }
+    private void OnClick(string text)
+    {
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = text });
+    }
+
+
+    
+
+
+
+}

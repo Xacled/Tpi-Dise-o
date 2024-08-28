@@ -1,0 +1,68 @@
+@page "/turnos/detalles/{turnoId:int}"
+@using Reciplas.Models;
+@using Reciplas.Repository
+@inject NotificationService NotificationService
+@inherits OwningComponentBase<Turno> 
+@inject DialogService DialogService
+@inject NavigationManager NavigationManager   
+@inject IClienteRepository _clientRepository
+
+<RadzenCard Class="rz-my-12 rz-mx-auto" Style="max-width: 420px">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+        
+        <RadzenStack Gap="0">
+            <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Nombre y Apellido del Cliente</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body1"><b>@turno.cliente.NombreyApellido</b></RadzenText>
+            <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">DNI</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body1"><b>@turno.cliente.DNI</b></RadzenText>
+            <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Telefono</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body1"><b>@turno.cliente.Telefono</b></RadzenText> 
+        </RadzenStack>
+    </RadzenStack>
+    <RadzenCard class="rz-background-color-primary-lighter rz-shadow-0 rz-border-radius-0 rz-p-8" style="margin: 1rem calc(-1 * var(--rz-card-padding));">
+        <RadzenText TextStyle="TextStyle.H6" class="rz-color-primary-light"><strong>Informacion del Turno</strong></RadzenText>
+        <RadzenRow RowGap="0">
+            <RadzenColumn SizeSM="4">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-color-primary-light rz-display-flex rz-mt-4 rz-mb-0">N°</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@turno.NumeroTurno</b></RadzenText>
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-color-primary-light rz-display-flex rz-mt-4 rz-mb-0">Fecha</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@turno.FechaTurno.ToString("dd/MM/yyyy")</b></RadzenText>
+            </RadzenColumn>
+            <RadzenColumn SizeSM="8">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-color-primary-light rz-display-flex rz-mt-4 rz-mb-0">Hora</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@turno.FechaTurno.Hour</b></RadzenText>
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-color-primary-light rz-display-flex rz-mt-4 rz-mb-0">Estado</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1"><b>@estadoNombre</b></RadzenText>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenCard>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0">
+        <RadzenButton Click="@(args => NavigationManager.NavigateTo("/turnos/listado"))" Variant="Variant.Text" class="rz-text-secondary-color" Text="Volver" />
+    </RadzenStack>
+</RadzenCard>
+
+
+@code 
+{
+    [Parameter]
+    public int turnoId { get; set; } 
+
+    Turno turno = new Turno();
+    string estadoNombre;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        turno = await _clientRepository.GetTurno(turnoId);
+
+        if (turno.Estado == false)
+        {
+            estadoNombre = "No realizado";
+        }
+        else
+        {
+            estadoNombre = "Realizado";
+        }
+    }
+
+}
