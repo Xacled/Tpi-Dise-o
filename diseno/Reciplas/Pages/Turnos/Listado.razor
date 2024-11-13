@@ -15,7 +15,14 @@
 
 <TituloPrincipal TextoPrincipal="Turnos"/>   <br>
  
-<RadzenButton Click=@(args => OnClick("Oblea Descargada")) Variant="Variant.Flat" Shade="Shade.Dark"  Text="Excel" Icon="assignment_returned" ButtonStyle="ButtonStyle.Success"/>
+<RadzenButton 
+    Click=@(args => OnClick("Oblea Descargada")) 
+    Variant="Variant.Flat" 
+    Shade="Shade.Dark"  
+    Text="Oblea" 
+    Icon="assignment_returned" 
+    ButtonStyle="ButtonStyle.Success" 
+    Title="Descargar Oblea en formato Excel"/>
 
 <br>
 <br>
@@ -54,7 +61,7 @@
 
     private void OnClick(string text)
     {
-        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Detail = text });
+        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = text });
     }
     protected async Task QuitarAdjunto(int Id)
     {
