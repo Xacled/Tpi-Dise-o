@@ -15,6 +15,7 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 System.Net.ServicePointManager.SecurityProtocol = 
     System.Net.SecurityProtocolType.Tls12;
 // Add services to the container.
+// agregué un comentario de pura onda
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
