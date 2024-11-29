@@ -11,7 +11,7 @@ using Reciplas.Repository;
 var builder = WebApplication.CreateBuilder(args); 
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-    options.UseSqlServer("Server=localhost\\MSSQLSERVER01;Initial Catalog=TallerMecanico;Integrated Security=True;Persist Security Info=False;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=False;Trusted_Connection=True;"));
+    options.UseSqlServer("Server=LAPTOP-EUFHCL1J;Initial Catalog=TallerMecanico;Integrated Security=True;Persist Security Info=False;MultipleActiveResultSets=False;Encrypt=False;TrustServerCertificate=False;Trusted_Connection=True;"));
 System.Net.ServicePointManager.SecurityProtocol = 
     System.Net.SecurityProtocolType.Tls12;
 // Add services to the container.

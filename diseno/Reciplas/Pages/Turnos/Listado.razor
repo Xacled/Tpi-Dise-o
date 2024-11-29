@@ -24,7 +24,7 @@
         <RadzenDataGridColumn TItem="Turno" Property="NumeroTurno" Title="Número" Width="80px" /> 
         <RadzenDataGridColumn TItem="Turno" Title="Estado" Width="100px">
             <Template Context="data">
-                @(data.Estado ? "Ocupado" : "Libre")
+                @(data.Estado ? "Ocupado" : "Ocupado")
             </Template>
         </RadzenDataGridColumn>      
         <RadzenDataGridColumn TItem="Turno" Property="FechaTurno" FormatString="{0:d}" Title="Fecha" Width="90px" />
@@ -70,19 +70,19 @@
 
     }
 
-    async Task RegisterEliminado(int turnoId)
-    {
-        var result = await DialogService.OpenAsync("Está seguro de que desea eliminar el Turno?", ds =>
+   async Task RegisterEliminado(int turnoId)
+{
+    var result = await DialogService.OpenAsync("Está seguro de que desea eliminar el Turno?", ds =>
     @<div>
         <div class="row">
             <div class="col">
-                <RadzenButton Click=@(args => RegistroEliminado(turnoId)) TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" Text="Eliminar" class="me-1" />
+                <RadzenButton Click=@(async args => { await RegistroEliminado(turnoId); ds.Close(true); }) TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" Text="Eliminar" class="me-1" />
                 <RadzenButton Click="() => ds.Close(false)" TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Light" Style="margin-left: 5px" Text="Cancelar" class="me-1 float-end" />
             </div> 
         </div>
     </div>
     );
-    }
+}
 
     async Task RegistroEliminado(int turnoId)
     {
