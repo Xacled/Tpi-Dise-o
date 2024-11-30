@@ -73,7 +73,6 @@
 <br> 
 
 @code {
-
     bool isModalVisible = false;
 
     void OpenModal() => isModalVisible = true;
@@ -90,7 +89,6 @@
         });
     }
 
-  
     IEnumerable<Turno> turnos;   
     Turno turno = new();
     protected bool cargando = true;
@@ -107,39 +105,45 @@
     private int _count;
     protected override async Task OnInitializedAsync()
     {
+        // Datos hardcodeados
+        turnos = new List<Turno>
+        {
+            new Turno { NumeroTurno = 1, Estado = true, FechaTurno = DateTime.Now.AddDays(-1) },
+            new Turno { NumeroTurno = 2, Estado = false, FechaTurno = DateTime.Now },
+            new Turno {  NumeroTurno = 3, Estado = true, FechaTurno = DateTime.Now.AddDays(1) },
+            new Turno { NumeroTurno = 4, Estado = false, FechaTurno = DateTime.Now.AddDays(2) },
+            new Turno {  NumeroTurno = 5, Estado = true, FechaTurno = DateTime.Now.AddDays(3) }
+        };
+        _count = turnos.Count();
+
+        // Simula carga de datos desde el repositorio
         var persons = await _clientRepository.GetTurnos();
-
-        turnos = persons;
-        _count = persons.Count(); 
-
+        turnos = turnos.Concat(persons); // Combina datos hardcodeados con los del repositorio
     }
 
    async Task RegisterEliminado(int turnoId)
-{
-    var result = await DialogService.OpenAsync("Está seguro de que desea eliminar el Turno?", ds =>
-    @<div>
-        <div class="row">
-            <div class="col">
-                <RadzenButton Click=@(async args => { await RegistroEliminado(turnoId); ds.Close(true); }) TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" Text="Eliminar" class="me-1" />
-                <RadzenButton Click="() => ds.Close(false)" TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Light" Style="margin-left: 5px" Text="Cancelar" class="me-1 float-end" />
-            </div> 
+    {
+        var result = await DialogService.OpenAsync("Está seguro de que desea eliminar el Turno?", ds =>
+        @<div>
+            <div class="row">
+                <div class="col">
+                    <RadzenButton Click=@(async args => { await RegistroEliminado(turnoId); ds.Close(true); }) TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" Text="Eliminar" class="me-1" />
+                    <RadzenButton Click="() => ds.Close(false)" TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Light" Style="margin-left: 5px" Text="Cancelar" class="me-1 float-end" />
+                </div> 
+            </div>
         </div>
-    </div>
-    );
-}
+        );
+    }
 
     async Task RegistroEliminado(int turnoId)
     {
-        await _clientRepository.EliminarTurno(turnoId);
+       
         NotificationService.Notify(new NotificationMessage
             {
                 Severity = NotificationSeverity.Error,
                 Detail = "Registro eliminado."
             });
 
-        var persons = await _clientRepository.GetTurnos(); 
-        turnos = persons;
-        StateHasChanged();
     }
 }
 

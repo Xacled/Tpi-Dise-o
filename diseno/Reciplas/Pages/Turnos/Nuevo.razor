@@ -124,10 +124,7 @@ else
         }
         else
         { 
-            turno.FechaUltimaModificacion = DateTime.Now;
-            turno.NumeroTurno++;
-
-            var client = await _clientRepository.AddTurno(arg);
+           
 
             NotificationService.Notify(new NotificationMessage
         {

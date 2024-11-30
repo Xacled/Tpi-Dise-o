@@ -1,10 +1,6 @@
 @page "/turnos/editar/{turnoId:int}"
-@using Reciplas.Repository
-@using Reciplas.Shared
 @inject NotificationService NotificationService 
-@inherits OwningComponentBase<Turno> 
 @inject NavigationManager NavigationManager
-@inject IClienteRepository _clientRepository
 
 <TituloPrincipal TextoPrincipal="Modificar"/>  
 
@@ -15,7 +11,7 @@
 else
 {
     <RadzenTemplateForm Data="@turno" Submit="@((Models.Turno args) => { Submit(args); })">
-    <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-4">
+        <RadzenRow Gap="2rem" Class="rz-p-0 rz-p-lg-4">
             <RadzenColumn Size="12" SizeMD="6">     
                 <RadzenStack>
                     <RadzenFieldset Text="Modificación">
@@ -54,46 +50,35 @@ else
         </RadzenRow>
 
         <br>
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
-                <RadzenButton ButtonType="ButtonType.Submit" Style="margin-left:15px;" Click=@(args => OnClick("Registro Modificado")) Variant="Variant.Flat" Text="Modificar" Icon="check_circle" ButtonStyle="ButtonStyle.Success" />
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+            <RadzenButton ButtonType="ButtonType.Submit" Style="margin-left:15px;" Click=@(args => OnClick("Registro Modificado")) Variant="Variant.Flat" Text="Modificar" Icon="check_circle" ButtonStyle="ButtonStyle.Success" />
             <RadzenButton ButtonType="ButtonType.Button" Click="@(args => NavigationManager.NavigateTo("/turnos/listado"))" Text="Volver" Icon="refresh" ButtonStyle="ButtonStyle.Light" />
-            </RadzenStack> 
+        </RadzenStack> 
     </RadzenTemplateForm>
 }
 
 @code {
-    bool EmployeeIDVisible = false;   
-
-    DateTime value = DateTime.Now;
+    // Datos Hardcodeados
+    Models.Turno turno = new Models.Turno
+    {
+        NumeroTurno = 1,
+        Estado = true,
+        FechaTurno = DateTime.Now.AddDays(1)
+    };
 
     [Parameter]
     public int turnoId { get; set; }
 
-    Models.Turno turno;
-    string estadoNombre;
-
-    protected override async Task OnInitializedAsync()
+    private void Submit(Models.Turno arg)
     {
-        turno = await _clientRepository.GetTurno(turnoId);
-  
-    } 
+       
 
-    async void Submit(Models.Turno arg)
-    {
-        turno.FechaUltimaModificacion = DateTime.Now;
-
-        var cliente = await _clientRepository.UpdateTurno(arg);
-
+        // Navegar de nuevo a la lista
         NavigationManager.NavigateTo("/turnos/listado");
     }
+
     private void OnClick(string text)
     {
         NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = text });
     }
-
-
-    
-
-
-
 }
