@@ -15,14 +15,33 @@
 
 <TituloPrincipal TextoPrincipal="Turnos"/>   <br>
  
+@page "/generar-oblea"
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
 <RadzenButton 
-    Click=@(args => OnClick("Oblea Descargada")) 
+    Click="OpenModal" 
     Variant="Variant.Flat" 
-    Shade="Shade.Dark"  
-    Text="Oblea" 
+    Text="Generar código de oblea" 
     Icon="assignment_returned" 
-    ButtonStyle="ButtonStyle.Success" 
-    Title="Descargar Oblea en formato Excel"/>
+    ButtonStyle="ButtonStyle.Success" />
+
+@if (isModalVisible)
+{
+    <div class="dialog-overlay">
+        <div class="dialog-content">
+            <h3>Código de oblea generado con éxito!</h3>
+            <RadzenButton 
+                Text="Imprimir Oblea" 
+                Icon="print" 
+                ButtonStyle="ButtonStyle.Primary" 
+                Click="PrintOblea" />
+        </div>
+    </div>
+}
+
+
+
 
 <br>
 <br>
@@ -54,6 +73,24 @@
 <br> 
 
 @code {
+
+    bool isModalVisible = false;
+
+    void OpenModal() => isModalVisible = true;
+
+    void CloseModal() => isModalVisible = false;
+
+    void PrintOblea()
+    {
+        CloseModal();
+        NotificationService.Notify(new NotificationMessage 
+        { 
+            Severity = NotificationSeverity.Success, 
+            Detail = "Impresión de oblea exitosa." 
+        });
+    }
+
+  
     IEnumerable<Turno> turnos;   
     Turno turno = new();
     protected bool cargando = true;
