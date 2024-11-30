@@ -18,7 +18,6 @@
 @page "/generar-oblea"
 @inject NotificationService NotificationService
 @inject DialogService DialogService
-
 <RadzenButton 
     Click="OpenModal" 
     Variant="Variant.Flat" 
@@ -28,14 +27,22 @@
 
 @if (isModalVisible)
 {
-    <div class="dialog-overlay">
-        <div class="dialog-content">
+    <div class="dialog-overlay" @onclick="CloseModal">
+        <!-- Prevent closing when clicking inside modal content -->
+        <div class="dialog-content" @onclick:stopPropagation="true">
             <h3>Código de oblea generado con éxito!</h3>
             <RadzenButton 
                 Text="Imprimir Oblea" 
                 Icon="print" 
                 ButtonStyle="ButtonStyle.Primary" 
                 Click="PrintOblea" />
+            <!-- Botón de Cerrar modal -->
+<RadzenButton 
+    Text="Cerrar" 
+    Icon="close" 
+    ButtonStyle="ButtonStyle.Light" 
+    Click="CloseModal" 
+    Style="margin-top: 10px;" />
         </div>
     </div>
 }
@@ -53,8 +60,10 @@
                 @(data.Estado ? "Ocupado" : "Ocupado")
             </Template>
         </RadzenDataGridColumn>      
-        <RadzenDataGridColumn TItem="Turno" Property="FechaTurno" FormatString="{0:d}" Title="Fecha" Width="90px" />
-        <RadzenDataGridColumn TItem="Turno" Property="FechaTurno" FormatString="{0:t}" Title="Hora" Width="90px" />
+<RadzenDataGridColumn TItem="Turno" Property="FechaTurno" FormatString="{0:dd-MM-yyyy}" Title="Fecha" Width="90px" Filterable="false"/>
+<RadzenDataGridColumn TItem="Turno" Property="FechaTurno" FormatString="{0:HH:mm}" Title="Hora" Width="90px" Filterable="false"/>
+
+
         <RadzenDataGridColumn TItem="Turno" Title="Acciones" Width="80px" Context="clientes" Filterable="false" Sortable="false"> 
         <Template Context="item"> 
             <RadzenButton Click="@(args => NavigationManager.NavigateTo($"/turnos/detalles/{item.Id}"))" TextAlign="TextAlign.Center" Icon="list" ButtonStyle="ButtonStyle.Success" Style="margin-left: 5px" />
@@ -75,10 +84,13 @@
 @code {
     bool isModalVisible = false;
 
+    // Abrir el modal
     void OpenModal() => isModalVisible = true;
 
+    // Cerrar el modal
     void CloseModal() => isModalVisible = false;
 
+    // Imprimir la oblea
     void PrintOblea()
     {
         CloseModal();
@@ -89,6 +101,7 @@
         });
     }
 
+    // Datos de turnos
     IEnumerable<Turno> turnos;   
     Turno turno = new();
     protected bool cargando = true;
@@ -98,60 +111,55 @@
     {
         NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Detail = text });
     }
+
     protected async Task QuitarAdjunto(int Id)
     {
     //
     }
+
     private int _count;
-protected override async Task OnInitializedAsync()
-{
-    // Datos hardcodeados
-    turnos = new List<Turno>
+
+    protected override async Task OnInitializedAsync()
     {
-        new Turno { NumeroTurno = 1, Estado = true, FechaTurno = DateTime.Now.AddDays(-1) },
-        new Turno { NumeroTurno = 2, Estado = false, FechaTurno = DateTime.Now },
-        new Turno { NumeroTurno = 3, Estado = true, FechaTurno = DateTime.Now.AddDays(1) },
-        new Turno { NumeroTurno = 4, Estado = false, FechaTurno = DateTime.Now.AddDays(2) },
-        new Turno { NumeroTurno = 5, Estado = true, FechaTurno = DateTime.Now.AddDays(3) }
-    };
+        // Datos hardcodeados
+        turnos = new List<Turno>
+        {
+            new Turno { NumeroTurno = 1, Estado = true, FechaTurno = DateTime.ParseExact("30-11-2024", "dd-MM-yyyy", null).AddHours(15) },
+            new Turno { NumeroTurno = 2, Estado = false, FechaTurno = DateTime.ParseExact("30-11-2024", "dd-MM-yyyy", null).AddHours(15) },
+            new Turno { NumeroTurno = 3, Estado = true, FechaTurno = DateTime.ParseExact("30-11-2024", "dd-MM-yyyy", null).AddHours(15) },
+            new Turno { NumeroTurno = 4, Estado = false, FechaTurno = DateTime.ParseExact("30-11-2024", "dd-MM-yyyy", null).AddHours(15) },
+            new Turno { NumeroTurno = 5, Estado = true, FechaTurno = DateTime.ParseExact("30-11-2024", "dd-MM-yyyy", null).AddHours(15) }
+        };
 
-    // Aquí ya no es necesario usar repositorios ni obtener datos de la base de datos
+        _count = turnos.Count();
 
-    _count = turnos.Count();
-
-    // Asegúrate de que los datos se están cargando correctamente
-    Console.WriteLine("Datos hardcodeados cargados:");
-    foreach (var turno in turnos)
-    {
-        Console.WriteLine($"Turno {turno.NumeroTurno}: {turno.Estado}");
+        Console.WriteLine("Datos hardcodeados cargados:");
+        foreach (var turno in turnos)
+        {
+            Console.WriteLine($"Turno {turno.NumeroTurno}: {turno.Estado}");
+        }
     }
-}
 
-
-
-   async Task RegisterEliminado(int turnoId)
+    async Task RegisterEliminado(int turnoId)
     {
         var result = await DialogService.OpenAsync("Está seguro de que desea eliminar el Turno?", ds =>
-        @<div>
-            <div class="row">
-                <div class="col">
-                    <RadzenButton Click=@(async args => { await RegistroEliminado(turnoId); ds.Close(true); }) TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" Text="Eliminar" class="me-1" />
-                    <RadzenButton Click="() => ds.Close(false)" TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Light" Style="margin-left: 5px" Text="Cancelar" class="me-1 float-end" />
-                </div> 
+            @<div>
+                <div class="row">
+                    <div class="col">
+                        <RadzenButton Click=@(async args => { await RegistroEliminado(turnoId); ds.Close(true); }) TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Danger" Style="margin-left: 5px" Text="Eliminar" class="me-1" />
+                        <RadzenButton Click="() => ds.Close(false)" TextAlign="TextAlign.Center" Icon="delete" ButtonStyle="ButtonStyle.Light" Style="margin-left: 5px" Text="Cancelar" class="me-1 float-end" />
+                    </div> 
+                </div>
             </div>
-        </div>
         );
     }
 
     async Task RegistroEliminado(int turnoId)
     {
-       
         NotificationService.Notify(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Error,
-                Detail = "Registro eliminado."
-            });
-
+        {
+            Severity = NotificationSeverity.Error,
+            Detail = "Registro eliminado."
+        });
     }
 }
-
