@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 using Reciplas.Clases;
 using Reciplas.Models;
 
@@ -78,4 +79,4 @@ namespace Reciplas.Repository
          
 
     }
-}
+} 

@@ -6,7 +6,7 @@
 @using Reciplas.Repository
 @inject DialogService DialogService   
 @inject NavigationManager NavigationManager
-@inject IClienteRepository _clientRepository 
+
 @using Radzen
 @inject TooltipService tooltipService
 
@@ -103,23 +103,31 @@
     //
     }
     private int _count;
-    protected override async Task OnInitializedAsync()
+protected override async Task OnInitializedAsync()
+{
+    // Datos hardcodeados
+    turnos = new List<Turno>
     {
-        // Datos hardcodeados
-        turnos = new List<Turno>
-        {
-            new Turno { NumeroTurno = 1, Estado = true, FechaTurno = DateTime.Now.AddDays(-1) },
-            new Turno { NumeroTurno = 2, Estado = false, FechaTurno = DateTime.Now },
-            new Turno {  NumeroTurno = 3, Estado = true, FechaTurno = DateTime.Now.AddDays(1) },
-            new Turno { NumeroTurno = 4, Estado = false, FechaTurno = DateTime.Now.AddDays(2) },
-            new Turno {  NumeroTurno = 5, Estado = true, FechaTurno = DateTime.Now.AddDays(3) }
-        };
-        _count = turnos.Count();
+        new Turno { NumeroTurno = 1, Estado = true, FechaTurno = DateTime.Now.AddDays(-1) },
+        new Turno { NumeroTurno = 2, Estado = false, FechaTurno = DateTime.Now },
+        new Turno { NumeroTurno = 3, Estado = true, FechaTurno = DateTime.Now.AddDays(1) },
+        new Turno { NumeroTurno = 4, Estado = false, FechaTurno = DateTime.Now.AddDays(2) },
+        new Turno { NumeroTurno = 5, Estado = true, FechaTurno = DateTime.Now.AddDays(3) }
+    };
 
-        // Simula carga de datos desde el repositorio
-        var persons = await _clientRepository.GetTurnos();
-        turnos = turnos.Concat(persons); // Combina datos hardcodeados con los del repositorio
+    // Aquí ya no es necesario usar repositorios ni obtener datos de la base de datos
+
+    _count = turnos.Count();
+
+    // Asegúrate de que los datos se están cargando correctamente
+    Console.WriteLine("Datos hardcodeados cargados:");
+    foreach (var turno in turnos)
+    {
+        Console.WriteLine($"Turno {turno.NumeroTurno}: {turno.Estado}");
     }
+}
+
+
 
    async Task RegisterEliminado(int turnoId)
     {

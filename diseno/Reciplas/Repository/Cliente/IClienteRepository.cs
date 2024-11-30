@@ -15,4 +15,4 @@ namespace Reciplas.Repository
         Task<Turno> GetFechaTurno(DateTime fechaTurno);
         Task EliminarTurno(int turnoId);
     }
-}
+} 

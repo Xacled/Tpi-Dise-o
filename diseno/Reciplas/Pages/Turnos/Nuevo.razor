@@ -1,9 +1,7 @@
 @page "/turnos/nuevo"
-@using Reciplas.Repository
-@inject NotificationService NotificationService 
-@inherits OwningComponentBase<Turno> 
+@using Reciplas.Models
+@inject NotificationService NotificationService
 @inject NavigationManager NavigationManager
-@inject IClienteRepository _clientRepository
 
 <TituloPrincipal TextoPrincipal="Nuevo turno"/> 
 @if (turno == null)
@@ -51,7 +49,7 @@ else
                         </RadzenStack>
                     </RadzenFieldset>
 
-                               <RadzenFieldset Text="Información del cliente">
+                    <RadzenFieldset Text="Información del cliente">
                         <RadzenStack Gap="1rem">
                             <RadzenRow AlignItems="AlignItems.Center">
                                 <RadzenColumn Size="12" SizeMD="4">
@@ -110,44 +108,25 @@ else
 
     }
 
-    async void Submit(Turno arg)
+    void Submit(Turno arg)
     { 
-        var existingCliente = await _clientRepository.GetClientePorDNIYFechaTurno(arg.cliente.DNI, arg.FechaTurno);
-
-        if (existingCliente != null)
-        { 
-            NotificationService.Notify(new NotificationMessage
-        {
-            Severity = NotificationSeverity.Error,
-            Detail = "Ya existe un turno asociado al cliente. No se puede agregar."
-        });
-        }
-        else
-        { 
-           
-
-            NotificationService.Notify(new NotificationMessage
+        // Aquí ya no hacemos la consulta al repositorio
+        NotificationService.Notify(new NotificationMessage
         {
             Severity = NotificationSeverity.Success,
             Detail = "Turno agregado exitosamente."
         });
-            NavigationManager.NavigateTo("/turnos/listado");
-        }
+        NavigationManager.NavigateTo("/turnos/listado");
     }
 
-    async void VerificarTurno(DateTime fechaTurno)
+    void VerificarTurno(DateTime fechaTurno)
     {
-        var existingTurno = await _clientRepository.GetFechaTurno(fechaTurno);
-
-        if (existingTurno != null)
+        // Aquí ya no hacemos la consulta al repositorio
+        NotificationService.Notify(new NotificationMessage
         {
-            NotificationService.Notify(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Error,
-                Detail = "Ya existe un turno en la fecha indicada. No se puede agregar."
-            });
-            turno.Estado = false;
-        }
+            Severity = NotificationSeverity.Error,
+            Detail = "Ya existe un turno en la fecha indicada. No se puede agregar."
+        });
+        turno.Estado = false;
     }
-
 }
