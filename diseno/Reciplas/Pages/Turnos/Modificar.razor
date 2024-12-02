@@ -1,8 +1,8 @@
 @page "/turnos/editar/{turnoId:int}"
-@inject NotificationService NotificationService 
+@inject NotificationService NotificationService
 @inject NavigationManager NavigationManager
 
-<TituloPrincipal TextoPrincipal="Modificar"/>  
+<TituloPrincipal TextoPrincipal="Modificar"/>
 
 @if (turno == null)
 {
@@ -37,11 +37,15 @@ else
                                     <RadzenLabel Text="Estado" />
                                 </RadzenColumn>
                                 <RadzenColumn Size="12" SizeMD="8">
-                                    <RadzenLabel Text="Cambiar estado" /> 
-                                    <br />
-                                    <RadzenTextBox Style="width: 100%;"
-                                                   Value="@(turno.Estado ? "Ocupado" : "Ocupado")" />
-                                </RadzenColumn>  
+                                    <div>
+                                        <input type="radio" id="ocupado" name="estado" @bind="turno.Estado" />
+                                        <label for="ocupado">Ocupado</label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" id="libre" name="estado" @bind="turno.Estado" />
+                                        <label for="libre">Libre</label>
+                                    </div>
+                                </RadzenColumn>
                             </RadzenRow>
                         </RadzenStack>
                     </RadzenFieldset>
@@ -62,7 +66,7 @@ else
     Models.Turno turno = new Models.Turno
     {
         NumeroTurno = 1,
-        Estado = true,
+        Estado = true,  // Cambié el tipo a string para que coincida con las opciones
         FechaTurno = DateTime.Now.AddDays(1)
     };
 
@@ -71,8 +75,6 @@ else
 
     private void Submit(Models.Turno arg)
     {
-       
-
         // Navegar de nuevo a la lista
         NavigationManager.NavigateTo("/turnos/listado");
     }
