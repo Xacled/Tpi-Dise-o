@@ -38,13 +38,14 @@ else
                                 </RadzenColumn>
                                 <RadzenColumn Size="12" SizeMD="8">
                                     <div>
-                                        <input type="radio" id="ocupado" name="estado" @bind="turno.Estado" />
-                                        <label for="ocupado">Ocupado</label>
-                                    </div>
-                                    <div>
-                                        <input type="radio" id="libre" name="estado" @bind="turno.Estado" />
-                                        <label for="libre">Libre</label>
-                                    </div>
+    <input type="radio" id="ocupado" name="estado" @bind="turno.Estado" checked="@(turno.Estado)" />
+    <label for="ocupado">Ocupado</label>
+</div>
+<div>
+    <input type="radio" id="libre" name="estado" @bind="turno.Estado" checked="@(turno.Estado == false)" />
+    <label for="libre">Libre</label>
+</div>
+
                                 </RadzenColumn>
                             </RadzenRow>
                         </RadzenStack>

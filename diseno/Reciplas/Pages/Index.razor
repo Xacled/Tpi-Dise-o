@@ -12,13 +12,13 @@
             <RadzenText TextStyle="TextStyle.DisplayH3" TagName="TagName.H2" Class="--rz-secondary rz-mb-6">Taller Mecánico</RadzenText>
             <RadzenText TextStyle="TextStyle.H6" Class="--rz-secondary">Bienvenido/a</RadzenText>
             <br>
-            <RadzenText TextStyle="TextStyle.Body2" Class="--rz-secondary">Para visualizar los turnos, por favor inicie sesion</RadzenText>
+            
         </RadzenCard>
     </RadzenColumn>
     <RadzenColumn Size="12" SizeMD="6">
         <RadzenCard Class="rz-shadow-0 rz-border-radius-0 rz-p-12">
             <RadzenText TextAlign="TextAlign.Center" TextStyle="TextStyle.H5" TagName="TagName.H2" Class="rz-mb-6">
-                Registro
+                Iniciar Sesion
             </RadzenText>
             <RadzenTemplateForm Data=@("SimpleLogin") Action="">
                 <RadzenLogin AllowRegister="false" AllowResetPassword="false" Login=@OnLogin/>
